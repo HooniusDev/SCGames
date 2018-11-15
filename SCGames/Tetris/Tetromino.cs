@@ -18,8 +18,11 @@ namespace SCGames.Tetris
         L,
         LInvert,
         Z,
+        ZInvert,
         Count, // Not an actual shape, but acts like Count in lists so it's easy to get random item. 
     }
+
+    // TODO add (Shape,ColorFG,ColorBG) Tuples or something  
 
     public class Tetromino : Entity
     {
@@ -41,7 +44,7 @@ namespace SCGames.Tetris
             {
                 r = Random.Next( ( int ) TetrominoShape.Count );
             }
-
+            // TODO: Cast r to TetrominoShape?
             switch (r)
             {
                 case 0:
@@ -58,6 +61,9 @@ namespace SCGames.Tetris
                     return new Tetromino( Tetris.TetrominoShape.LInvert );
                 case 4:
                     previous = TetrominoShape.Z;
+                    return new Tetromino( Tetris.TetrominoShape.Z );
+                case 5:
+                    previous = TetrominoShape.ZInvert;
                     return new Tetromino( Tetris.TetrominoShape.Z );
                 default:
                     break;
@@ -116,6 +122,16 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(0,0)),
                         CreateBlock(new Point(-1,-1)),
                         CreateBlock(new Point(1,0))
+                    };
+                    break;
+                case Tetris.TetrominoShape.ZInvert:
+                    Appearance = new Cell( Color.Violet, Color.MediumVioletRed, 260 );
+                    Shape = new Entity[]
+                    {
+                        CreateBlock(new Point(0,-1)),
+                        CreateBlock(new Point(0,0)),
+                        CreateBlock(new Point(1,-1)),
+                        CreateBlock(new Point(-1,0))
                     };
                     break;
             }

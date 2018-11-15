@@ -17,7 +17,7 @@ namespace SCGames.Tetris
 
         float timer;
         float dropDelay = 500f;
-        float dropDelayFast = 5;
+        float dropDelayFast = 0f;
         bool dropped = false;
 
         public TetrisBoard Board;
@@ -28,13 +28,13 @@ namespace SCGames.Tetris
         {
             InitializeView();
             Board.OnScoreChangeEvent += OnScoreChanged;
-            Print( 40, 5, "Score: 0" );
+            Print( 40, 5, "Lines: 0" );
             timer = dropDelay;
         }
 
         public void OnScoreChanged( int score )
         {
-            Print( 40, 5, "Score: " + score.ToString());
+            Print( 40, 5, "Lines: " + score.ToString());
         }
 
         public override void Update( TimeSpan time )
