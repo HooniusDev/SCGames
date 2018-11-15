@@ -1,0 +1,9 @@
+{
+  "FilePath": "cp437_10x10_extended.png",
+  "GlyphHeight": 10,
+  "GlyphPadding": 0,
+  "GlyphWidth": 10,
+  "Name": "cp-extended",
+  "SolidGlyphIndex": 219,
+  "IsSadExtended": true
+}
