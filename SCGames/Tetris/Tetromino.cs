@@ -135,7 +135,11 @@ namespace SCGames.Tetris
                     };
                     break;
             }
-            Position = new Point( 4, 0 );
+            foreach( Entity e in Shape )
+            {
+                e.IsVisible = false;
+            }
+            Position = new Point( 4, -1 );
         }
 
         public bool CanMove( TetrisBoard board, Point direction )
@@ -191,7 +195,15 @@ namespace SCGames.Tetris
 
         public void MoveDown( )
         {
-           Position += new Point( 0, 1 );
+            foreach( Entity e in Shape )
+            {
+                if( PositionToGlobal( e ).Y >= -1 )
+                {
+                    e.IsVisible = true;
+                }
+            }
+            Position += new Point( 0, 1 );
+           
         }
     }
 

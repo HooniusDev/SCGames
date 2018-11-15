@@ -35,6 +35,7 @@ namespace SCGames.Tetris
         public void OnScoreChanged( int score )
         {
             Print( 40, 5, "Lines: " + score.ToString());
+            dropDelay -= 25f;
         }
 
         public override void Update( TimeSpan time )
