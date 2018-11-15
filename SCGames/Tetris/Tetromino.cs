@@ -11,52 +11,68 @@ using Console = SadConsole.Console;
 namespace SCGames.Tetris
 {
 
-    public enum Shapes
+    public enum TetrominoShape
     {
         ILong,
         IShort,
         L,
+        LInvert,
+        Z,
+        Count, // Not an actual shape, but acts like Count in lists so it's easy to get random item. 
     }
 
     public class Tetromino : Entity
     {
-
-        //public static Tetromino ILong = new Tetromino( Shapes.ILong );
-        //public static Tetromino IShort = new Tetromino( Shapes.IShort );
-        //public static Tetromino L = new Tetromino( Shapes.L );
-
-        public Entity[] shape { get; private set; }
-
-        public TetrisBoard Board;
-
+        // Array of the actual 1x1 blocks
+        public Entity[] Shape { get; private set; }
+        // Appearance of the blocks
         public Cell Appearance;
+
+        public static Random Random = new Random();
+        private static TetrominoShape previous;
 
         public static Tetromino GetRandom( )
         {
-            Random rand = new Random();
-            int r = rand.Next( 3 );
+
+            int r = Random.Next( ( int ) TetrominoShape.Count );
+
+            // Re roll if the previous == new
+            if( r == ( int ) previous )
+            {
+                r = Random.Next( ( int ) TetrominoShape.Count );
+            }
+
             switch (r)
             {
                 case 0:
-                    return new Tetromino( Shapes.ILong );
+                    previous = TetrominoShape.ILong;
+                    return new Tetromino( Tetris.TetrominoShape.ILong );
                 case 1:
-                    return new Tetromino( Shapes.IShort );
+                    previous = TetrominoShape.IShort;
+                    return new Tetromino( Tetris.TetrominoShape.IShort );
                 case 2:
-                    return new Tetromino( Shapes.L );
+                    previous = TetrominoShape.L;
+                    return new Tetromino( Tetris.TetrominoShape.L );
+                case 3:
+                    previous = TetrominoShape.LInvert;
+                    return new Tetromino( Tetris.TetrominoShape.LInvert );
+                case 4:
+                    previous = TetrominoShape.Z;
+                    return new Tetromino( Tetris.TetrominoShape.Z );
                 default:
-                    return new Tetromino( Shapes.L );
+                    break;
             }
+            return new Tetromino( TetrominoShape.IShort );
         }
 
 
-        public Tetromino( Shapes type ): base(1,1)
+        public Tetromino( TetrominoShape type ): base(1,1)
         {
             switch( type )
             {
-                case Shapes.ILong:
-                    System.Console.WriteLine( "ILong" );
+                case Tetris.TetrominoShape.ILong:
                     Appearance = new Cell( Color.HotPink, Color.DeepPink, 260 );
-                    shape = new Entity[]
+                    Shape = new Entity[]
                     {
                         CreateBlock(new Point(0,-2)),
                         CreateBlock(new Point(0,-1)),
@@ -64,25 +80,42 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(0,1))
                     };
                     break;
-
-                case Shapes.IShort:
-                    System.Console.WriteLine( "IShort" );
+                case Tetris.TetrominoShape.IShort:
                     Appearance = new Cell( Color.ForestGreen, Color.DarkGreen, 260 );
-                    shape = new Entity[]
+                    Shape = new Entity[]
                     {
                         CreateBlock(new Point(0,-1)),
                         CreateBlock(new Point(0,0)),
                     };
                     break;
-                case Shapes.L:
-                    System.Console.WriteLine( "L" );
+                case Tetris.TetrominoShape.L:
                     Appearance = new Cell( Color.Red, Color.DarkRed, 260 );
-                    shape = new Entity[]
+                    Shape = new Entity[]
                     {
                         CreateBlock(new Point(0,-1)),
                         CreateBlock(new Point(0,0)),
                         CreateBlock(new Point(0,1)),
                         CreateBlock(new Point(1,1))
+                    };
+                    break;
+                case Tetris.TetrominoShape.LInvert:
+                    Appearance = new Cell( Color.Blue, Color.SteelBlue, 260 );
+                    Shape = new Entity[]
+                    {
+                        CreateBlock(new Point(0,-1)),
+                        CreateBlock(new Point(0,0)),
+                        CreateBlock(new Point(0,1)),
+                        CreateBlock(new Point(-1,1))
+                    };
+                    break;
+                case Tetris.TetrominoShape.Z:
+                    Appearance = new Cell( Color.RosyBrown, Color.SandyBrown, 260 );
+                    Shape = new Entity[]
+                    {
+                        CreateBlock(new Point(0,-1)),
+                        CreateBlock(new Point(0,0)),
+                        CreateBlock(new Point(-1,-1)),
+                        CreateBlock(new Point(1,0))
                     };
                     break;
             }
@@ -92,7 +125,7 @@ namespace SCGames.Tetris
         public bool CanMove( TetrisBoard board, Point direction )
         {
             // Check if empty for each child
-            foreach( Entity e in shape )
+            foreach( Entity e in Shape )
             {
                 Point target = direction + Position + e.Position;
                 
@@ -111,7 +144,7 @@ namespace SCGames.Tetris
         public void Rotate( )
         {
             
-            foreach( Entity e in shape )
+            foreach( Entity e in Shape )
             {
                 e.Position = new Point( e.Position.Y, e.Position.X * -1 );
             }

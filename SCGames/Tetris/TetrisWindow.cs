@@ -16,50 +16,49 @@ namespace SCGames.Tetris
     {
 
         float timer;
-        float delay = 500f;
-        float fastDelay = 5;
+        float dropDelay = 500f;
+        float dropDelayFast = 5;
         bool dropped = false;
 
         public TetrisBoard Board;
         int playWidth = 10;
         int playHeight = 16;
 
-        public TetrisWindow( ) : base( 50, 20 )
+        public TetrisWindow( ) : base( 60, 20 )
         {
             InitializeView();
             Board.OnScoreChangeEvent += OnScoreChanged;
-            Print( 35, 5, "Score: 0" );
-            timer = delay;
+            Print( 40, 5, "Score: 0" );
+            timer = dropDelay;
         }
 
         public void OnScoreChanged( int score )
         {
-            System.Console.WriteLine( "new Score: " + score.ToString() );
-            Print( 35, 5, "Score: " + score.ToString());
+            Print( 40, 5, "Score: " + score.ToString());
         }
 
         public override void Update( TimeSpan time )
         {
-
+            // TODO these should be in TetrisBoard
             timer -= time.Milliseconds;
             if( timer < 0 )
             {
-                if( Board.MoveDown() )
+                if( Board.TryMoveDown() )
                 {
-                    //current.MoveDown();
+                    // It moves automatically!
                 }
                 else
                 {
                     dropped = false;
-                    //timer = delay;
                 }
 
                 if( dropped )
-                    timer = fastDelay;
+                    timer = dropDelayFast;
                 else
-                    timer = delay;
+                    timer = dropDelay;
             }
 
+            // Drop Current
             if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Down ) )
             {
                 timer = 0;
@@ -68,18 +67,20 @@ namespace SCGames.Tetris
 
             if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Up ) )
             {
-                Board.Rotate();
+                Board.TryRotate();
             }
 
             if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Left ) )
             {
-                Board.MoveLeft();
+                Board.TryMoveLeft();
             }
 
             if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Right ) )
             {
-                Board.MoveRight();
+                Board.TryMoveRight();
             }
+
+            //TODO: Add pause state
 
             base.Update( time );
         }
@@ -88,7 +89,7 @@ namespace SCGames.Tetris
 
         private void InitializeView( )
         {
-
+            // Centers this window to parent
             Center();
 
             Title = "Tetris";
@@ -101,7 +102,7 @@ namespace SCGames.Tetris
             Board = new TetrisBoard( playWidth, playHeight );
             Board.Position = new Point( playAreaX, playAreaY );
             
-
+            // Add Border around the board
             var border = new SadConsole.Surfaces.Basic( playWidth + 2, playHeight + 2 );
 
             border.DrawBox( new Rectangle( 0, 0, border.Width, border.Height ),new Cell(DefaultForeground, DefaultBackground ),connectedLineStyle:SurfaceBase.ConnectedLineThin );
@@ -109,7 +110,7 @@ namespace SCGames.Tetris
             border.Draw( TimeSpan.Zero );
             border.Position = new Point( - 1,  - 1 );
 
-            // Add PlayArea as a child to border so it renders on top
+            // Add border to Board children so it draws later
             Board.Children.Add( border );
             Children.Add( Board );
         }

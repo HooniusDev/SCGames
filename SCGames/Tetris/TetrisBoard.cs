@@ -19,31 +19,25 @@ namespace SCGames.Tetris
         /// <summary>
         /// Default glyph for blocks
         /// </summary>
-        public int DefaultGlyph = 260;
+        public readonly int DefaultGlyph = 260;
 
-        public EntityManager EntityManager;
+        public EntityManager EntityManager { get; private set; }
 
         public Tetromino Current { get; private set; }    
         public Tetromino Next { get; private set; }
 
         public int Score { get; set; }
 
-
         public TetrisBoard( int width, int height ) : base( width, height )
         {
-
-            ViewPort = new Rectangle( 0, 0, width, height );
             EntityManager = new EntityManager();
             Children.Add( EntityManager );
 
             OnStart();
         }
 
-        private void newBlock( )
+        private void GetNewTetromino( )
         {
-            // Create next if it is null
-            if( Next == null )
-                Next = Tetromino.GetRandom();
             // Remove Current from EntityManager
             if( Current != null )
             {
@@ -82,17 +76,16 @@ namespace SCGames.Tetris
                     }
                 }
             }
+
             Score++;
             OnScoreChangeEvent?.Invoke( Score );
-            System.Console.WriteLine( "Score " + Score.ToString() );
             RemoveFullRow(row);
-            //return;
         }
 
-        public bool MoveDown( )
+        public bool TryMoveDown( )
         {
             // Check if empty for each child
-            foreach( Entity e in Current.shape )
+            foreach( Entity e in Current.Shape )
             {
                 Point target = new Point(0,1) + Current.Position + e.Position;
 
@@ -102,50 +95,51 @@ namespace SCGames.Tetris
                     return false;
                 }
             }
-            Current.Position += new Point( 0, 1 );
+            Current.MoveDown();
 
             return true;
         }
 
-        public bool MoveLeft( )
+        public bool TryMoveLeft( )
         {
             // Check if empty for each child
-            foreach( Entity e in Current.shape )
+            foreach( Entity e in Current.Shape )
             {
                 Point target = new Point( -1, 0 ) + Current.Position + e.Position;
 
                 if( !IsEmpty( target ) )
                     return false;
             }
-            Current.Position += new Point( -1, 0 );
+            Current.MoveLeft();
             return true;
         }
 
-        public bool MoveRight( )
+        public bool TryMoveRight( )
         {
             // Check if empty for each child
-            foreach( Entity e in Current.shape )
+            foreach( Entity e in Current.Shape )
             {
                 Point target = new Point( 1, 0 ) + Current.Position + e.Position;
 
                 if( !IsEmpty( target ) )
                     return false;
             }
-            Current.Position += new Point( 1, 0 );
+            Current.MoveRight();
             return true;
         }
 
-        public void Rotate( )
+        public void TryRotate( )
         {
+            //TODO: Add collision tests!
             Current.Rotate();
         }
 
         public void OnStart( )
         {
             initBoard();
-            Current = null;
-            Next = null;
-            newBlock();
+            Current = Tetromino.GetRandom();
+            Next = Tetromino.GetRandom();
+            GetNewTetromino();
         }
 
         private void initBoard( )
@@ -153,16 +147,18 @@ namespace SCGames.Tetris
             DefaultBackground = new Color( 10, 10, 10 );
             DefaultForeground = new Color( 30, 30, 30 );
 
-            Fill( DefaultForeground, DefaultBackground, 260 );
+            Fill( DefaultForeground, DefaultBackground, DefaultGlyph );
 
             if( Current != null )
                 EntityManager.Entities.Remove( Current);
         }
 
+        /// <summary>
+        /// Plants Current Tetromino to the board
+        /// </summary>
         public void Plant(  )
         {
-            System.Console.WriteLine( "Plant" );
-            foreach( Entity e in Current.shape )
+            foreach( Entity e in Current.Shape )
             {
                 Point position = Current.PositionToGlobal( e );
                 if( position.Y == 0 )
@@ -173,7 +169,7 @@ namespace SCGames.Tetris
 
                 SetCellAppearance( position.X, position.Y, Current.Appearance );
             }
-            newBlock();
+            GetNewTetromino();
         }
 
         public bool IsEmpty( Point position )
