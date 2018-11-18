@@ -4,6 +4,8 @@ using Console = SadConsole.Console;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SCGames.Tetris;
+using SCGames.Common;
+using SCGames.Snake;
 
 namespace SCGames
 {
@@ -12,6 +14,10 @@ namespace SCGames
 
         public const int Width = 60;
         public const int Height = 40;
+
+        public static MainMenu MainMenu;
+        public static TetrisWindow TetrisWindow;
+        public static SnakeWindow SnakeWindow;
 
         static void Main(string[] args)
         {
@@ -53,9 +59,13 @@ namespace SCGames
             FontMaster fontMaster = SadConsole.Global.LoadFont( "cp437_10_ext.font" );
             Global.FontDefault = fontMaster.GetFont( Font.FontSizes.Two );
 
-            // Create and Show Tetris
-            TetrisWindow tetrisWindow = new TetrisWindow();
-            tetrisWindow.Show();
+            MainMenu = new MainMenu( 60, 40 );
+            MainMenu.Show();
+
+            // Create
+            TetrisWindow = new TetrisWindow();
+            SnakeWindow = new SnakeWindow();
+
 
         }
     }

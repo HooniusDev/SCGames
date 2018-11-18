@@ -4,6 +4,5 @@
   "GlyphPadding": 0,
   "GlyphWidth": 10,
   "Name": "cp-extended",
-  "SolidGlyphIndex": 219,
-  "IsSadExtended": true
+  "SolidGlyphIndex": 219
 }

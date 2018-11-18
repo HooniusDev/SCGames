@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\MainMenu.cs" />
     <Compile Include="program.cs" />
     <Compile Include="Service1.cs">
       <SubType>Component</SubType>
@@ -66,6 +67,10 @@
       <DependentUpon>Service1.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Snake\Snake.cs" />
+    <Compile Include="Snake\SnakeBoard.cs" />
+    <Compile Include="Snake\SnakeWindow.cs" />
+    <Compile Include="Snake\Target.cs" />
     <Compile Include="Tetris\TetrisBoard.cs" />
     <Compile Include="Tetris\TetrisWindow.cs" />
     <Compile Include="Tetris\Tetromino.cs" />
