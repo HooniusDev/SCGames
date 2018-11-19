@@ -11,7 +11,7 @@ using Console = SadConsole.Console;
 namespace SCGames.Tetris
 {
 
-    public enum TetrominoShape
+    public enum TetrominoType
     {
         ILong,
         IShort,
@@ -33,51 +33,55 @@ namespace SCGames.Tetris
         public Cell Appearance;
 
         public static Random Random = new Random();
-        private static TetrominoShape previous;
+        private static TetrominoType previous;
+        private TetrominoType _type;
+
+        // Affects Z and ZInvert(They have only 2 rotations)
+        bool _rotated = false;
 
         public static Tetromino GetRandom( )
         {
 
-            int r = Random.Next( ( int ) TetrominoShape.Count );
+            int r = Random.Next( ( int ) TetrominoType.Count );
 
             // Re roll if the previous == new
             if( r == ( int ) previous )
             {
-                r = Random.Next( ( int ) TetrominoShape.Count );
+                r = Random.Next( ( int ) TetrominoType.Count );
             }
             // TODO: Cast r to TetrominoShape?
             switch (r)
             {
                 case 0:
-                    previous = TetrominoShape.ILong;
-                    return new Tetromino( Tetris.TetrominoShape.ILong );
+                    previous = TetrominoType.ILong;
+                    return new Tetromino( Tetris.TetrominoType.ILong );
                 case 1:
-                    previous = TetrominoShape.IShort;
-                    return new Tetromino( Tetris.TetrominoShape.IShort );
+                    previous = TetrominoType.IShort;
+                    return new Tetromino( Tetris.TetrominoType.IShort );
                 case 2:
-                    previous = TetrominoShape.L;
-                    return new Tetromino( Tetris.TetrominoShape.L );
+                    previous = TetrominoType.L;
+                    return new Tetromino( Tetris.TetrominoType.L );
                 case 3:
-                    previous = TetrominoShape.LInvert;
-                    return new Tetromino( Tetris.TetrominoShape.LInvert );
+                    previous = TetrominoType.LInvert;
+                    return new Tetromino( Tetris.TetrominoType.LInvert );
                 case 4:
-                    previous = TetrominoShape.Z;
-                    return new Tetromino( Tetris.TetrominoShape.Z );
+                    previous = TetrominoType.Z;
+                    return new Tetromino( Tetris.TetrominoType.Z );
                 case 5:
-                    previous = TetrominoShape.ZInvert;
-                    return new Tetromino( Tetris.TetrominoShape.Z );
+                    previous = TetrominoType.ZInvert;
+                    return new Tetromino( Tetris.TetrominoType.ZInvert );
                 default:
                     break;
             }
-            return new Tetromino( TetrominoShape.IShort );
+            return new Tetromino( TetrominoType.IShort );
         }
 
-
-        public Tetromino( TetrominoShape type ): base(1,1)
+        public Tetromino( TetrominoType type ): base(1,1)
         {
+            _type = type;
             switch( type )
             {
-                case Tetris.TetrominoShape.ILong:
+                case Tetris.TetrominoType.ILong:
                     Appearance = new Cell( Color.HotPink, Color.DeepPink, 260 );
                     Shape = new Entity[]
                     {
@@ -87,7 +91,7 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(0,1))
                     };
                     break;
-                case Tetris.TetrominoShape.IShort:
+                case Tetris.TetrominoType.IShort:
                     Appearance = new Cell( Color.ForestGreen, Color.DarkGreen, 260 );
                     Shape = new Entity[]
                     {
@@ -95,7 +99,7 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(0,0)),
                     };
                     break;
-                case Tetris.TetrominoShape.L:
+                case Tetris.TetrominoType.L:
                     Appearance = new Cell( Color.Red, Color.DarkRed, 260 );
                     Shape = new Entity[]
                     {
@@ -105,7 +109,7 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(1,1))
                     };
                     break;
-                case Tetris.TetrominoShape.LInvert:
+                case Tetris.TetrominoType.LInvert:
                     Appearance = new Cell( Color.Blue, Color.SteelBlue, 260 );
                     Shape = new Entity[]
                     {
@@ -115,7 +119,7 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(-1,1))
                     };
                     break;
-                case Tetris.TetrominoShape.Z:
+                case Tetris.TetrominoType.Z:
                     Appearance = new Cell( Color.RosyBrown, Color.SandyBrown, 260 );
                     Shape = new Entity[]
                     {
@@ -124,8 +128,9 @@ namespace SCGames.Tetris
                         CreateBlock(new Point(-1,-1)),
                         CreateBlock(new Point(1,0))
                     };
+                    _rotated = false;
                     break;
-                case Tetris.TetrominoShape.ZInvert:
+                case Tetris.TetrominoType.ZInvert:
                     Appearance = new Cell( Color.Violet, Color.MediumVioletRed, 260 );
                     Shape = new Entity[]
                     {
@@ -159,12 +164,10 @@ namespace SCGames.Tetris
 
         public bool CanRotate( TetrisBoard board )
         {
-
             // Check if empty for each child
-            foreach( Entity e in Shape )
+            foreach( Point p in RotatedPoints() )
             {
-                Point rotatedPos = new Point( e.Position.Y, e.Position.X * -1 );
-                if( !board.IsEmpty( Position + rotatedPos ) )
+                if( !board.IsEmpty( Position + p ) )
                     return false;
             }
             return true;
@@ -175,12 +178,108 @@ namespace SCGames.Tetris
             return Position + e.Position;
         }
 
+        // Get Shape Entity positions after a rotation
+        // TODO: Lots of same code as in Rotate, find a way to merge them
+        private List<Point> RotatedPoints(  )
+        {
+            List<Point> points = new List<Point>();
+
+            if( _type == TetrominoType.Z )
+            {
+                if( _rotated )
+                {
+                    points.Add( new Point( 1, 0 ));
+                    points.Add( new Point( 0, 0 ));
+                    points.Add( new Point( 1, -1 ));
+                    points.Add( new Point( 0, 1 ));
+                }
+                else
+                {
+                    points.Add( new Point( 0, -1 ));
+                    points.Add( new Point( 0, 0 ));
+                    points.Add( new Point( -1, -1 ));
+                    points.Add( new Point( 1, 0 ));
+                }
+            }
+            else if( _type == TetrominoType.ZInvert )
+            {
+                if( !_rotated )
+                {
+                    points.Add(  new Point( -1, 0 ));
+                    points.Add( new Point( 0, 0 ));
+                    points.Add( new Point( -1, -1 ));
+                    points.Add( new Point( 0, 1 ));
+                }
+                else
+                {
+                    points.Add( new Point( 0, -1 ));
+                    points.Add( new Point( 0, 0 ));
+                    points.Add( new Point( 1, -1 ));
+                    points.Add( new Point( -1, 0 ));
+                }
+            }
+            else
+            {
+                foreach( Entity e in Shape )
+                {
+                    points.Add( new Point( e.Position.Y, e.Position.X * -1 )); 
+                }
+            }
+
+            return points;
+        }
+
         public void Rotate( )
         {
-            
-            foreach( Entity e in Shape )
+            // Hacky way of rotating Z shapes
+            if( _type == TetrominoType.Z )
             {
-                e.Position = new Point( e.Position.Y, e.Position.X * -1 );
+                if( !_rotated )
+                {
+                    Point[] points = RotatedPoints().ToArray();
+                    Shape[0].Position = points[0];
+                    Shape[1].Position = points[1];
+                    Shape[2].Position = points[2];
+                    Shape[3].Position = points[3];
+                    _rotated = true;
+                }
+                else
+                {
+                    Point[] points = RotatedPoints().ToArray();
+                    Shape[0].Position = points[0];
+                    Shape[1].Position = points[1];
+                    Shape[2].Position = points[2];
+                    Shape[3].Position = points[3];
+                    _rotated = false;
+                }
+            }
+            else if( _type == TetrominoType.ZInvert )
+            {
+                if( !_rotated )
+                {
+                    Point[] points = RotatedPoints().ToArray();
+                    Shape[0].Position = points[0];
+                    Shape[1].Position = points[1];
+                    Shape[2].Position = points[2];
+                    Shape[3].Position = points[3];
+                    _rotated = true;
+                }
+                else
+                {
+                    Point[] points = RotatedPoints().ToArray();
+                    Shape[0].Position = points[0];
+                    Shape[1].Position = points[1];
+                    Shape[2].Position = points[2];
+                    Shape[3].Position = points[3];
+                    _rotated = false;
+                }
+            }
+            else
+            {
+                foreach( Entity e in Shape )
+                {
+                    e.Position = new Point( e.Position.Y, e.Position.X * -1 );
+                }
             }
         }
 
