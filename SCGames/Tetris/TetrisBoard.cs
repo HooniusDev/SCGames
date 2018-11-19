@@ -130,8 +130,8 @@ namespace SCGames.Tetris
 
         public void TryRotate( )
         {
-            //TODO: Add collision tests!
-            Current.Rotate();
+            if (Current.CanRotate(this))
+                Current.Rotate();
         }
 
         public void OnStart( )

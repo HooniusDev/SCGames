@@ -24,6 +24,7 @@ namespace SCGames.Tetris
 
     // TODO add (Shape,ColorFG,ColorBG) Tuples or something  
 
+    // TODO Z piece rotates in a funky way..
     public class Tetromino : Entity
     {
         // Array of the actual 1x1 blocks
@@ -156,6 +157,19 @@ namespace SCGames.Tetris
             return true;
         }
 
+        public bool CanRotate( TetrisBoard board )
+        {
+
+            // Check if empty for each child
+            foreach( Entity e in Shape )
+            {
+                Point rotatedPos = new Point( e.Position.Y, e.Position.X * -1 );
+                if( !board.IsEmpty( Position + rotatedPos ) )
+                    return false;
+            }
+            return true;
+        }
+
         public Point PositionToGlobal( Entity e )
         {
             return Position + e.Position;
@@ -182,8 +196,6 @@ namespace SCGames.Tetris
 
         private Entity CreateBlock(  Point pos )
         {
-
-          
             Entity block = new Entity( 1, 1 );
             block.Animation.CurrentFrame[0].Glyph = 260;
             block.Animation.CurrentFrame[0].Foreground = Appearance.Foreground;

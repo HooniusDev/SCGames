@@ -46,7 +46,7 @@ namespace SCGames.Snake
         {
             // Show a Death message
             // This doesnt properly show the button. Caused by thinline button!
-            Message( "You Died", "Okay", () =>
+            Message( "You Died! Score: " + Score.ToString(), "Okay", () =>
             {
                 //Call Restart when button pressed
                 Restart();

@@ -131,7 +131,10 @@ namespace SCGames.Snake
             EntityManager.Entities.Remove( target ); // Remove Target
             PlaceTarget(); // Place new Target
             EatHandler?.Invoke( this, new EventArgs() ); // Fire an event (SnakeWindow will care )
-            _speed -= 25; // Make things go faster
+            if( _speed > 30 )
+            {
+                _speed -= 5; // Make things go faster
+            }
         }
 
         // Poor Snake died in a horrible way!
