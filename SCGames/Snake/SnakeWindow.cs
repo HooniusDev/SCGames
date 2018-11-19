@@ -37,12 +37,12 @@ namespace SCGames.Snake
             InitializeView();
         }
 
-        public void OnSnakeEat( )
+        public void OnSnakeEat( object sender, EventArgs args )
         {
             Score += 25;
         }
 
-        public void OnSnakeDeath( )
+        public void OnSnakeDeath( object sender, EventArgs args )
         {
             // Show a Death message
             // This doesnt properly show the button. Caused by thinline button!
@@ -70,7 +70,8 @@ namespace SCGames.Snake
             Board = new SnakeBoard( boardWidth, boardHeight );
             Board.Position = new Point( Width / 2 - boardWidth / 2, 5 );
 
-            Board.OnDeathEvent += OnSnakeDeath;
+            Board.DeathHandler += OnSnakeDeath;
+            Board.EatHandler += OnSnakeEat;
 
             // Add Border around the board
             var border = new SadConsole.Surfaces.Basic( boardWidth + 2, boardHeight + 2 );

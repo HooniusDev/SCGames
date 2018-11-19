@@ -12,11 +12,8 @@ namespace SCGames.Snake
     public class SnakeBoard : Console
     {
 
-        public delegate void Eat( );
-        public delegate void Die( );
-
-        public event Eat OnEatEvent;
-        public event Die OnDeathEvent;
+        public event EventHandler DeathHandler;
+        public event EventHandler EatHandler;
 
         // Manager for snake and targets
         public static EntityManager EntityManager { get; private set; }
@@ -90,6 +87,7 @@ namespace SCGames.Snake
                     // Snake got to target so let's eat
                     if( e is Target )
                     {
+                        
                         OnSnakeEat( e );
                     }
                     // Oh noes Snake bites itself, thats not healthy
@@ -132,7 +130,7 @@ namespace SCGames.Snake
             Snake.Grow(); // Grow snake
             EntityManager.Entities.Remove( target ); // Remove Target
             PlaceTarget(); // Place new Target
-            OnEatEvent?.Invoke(); // Fire an event (SnakeWindow will care )
+            EatHandler?.Invoke( this, new EventArgs() ); // Fire an event (SnakeWindow will care )
             _speed -= 25; // Make things go faster
         }
 
@@ -140,9 +138,7 @@ namespace SCGames.Snake
         public void OnSnakeDeath( )
         {
             Snake.Alive = false;
-            OnDeathEvent?.Invoke(); // Fire an event (SnakeWindow will care )
-
-            //OnStart();
+            DeathHandler?.Invoke( this, new EventArgs() ); // Fire an event (SnakeWindow will care )
         }
 
 
