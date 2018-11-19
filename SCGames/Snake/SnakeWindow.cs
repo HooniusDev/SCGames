@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using SadConsole.Surfaces;
 using SadConsole.Entities;
 using SadConsole.Input;
-
+using SadConsole.Effects;
 
 namespace SCGames.Snake
 {
@@ -20,6 +20,11 @@ namespace SCGames.Snake
         int boardWidth = 30;
         int boardHeight = 20;
 
+        private Cell _defaultAppearance = new Cell();
+
+        private Rectangle _scoreRect;
+        private Basic _scoreLabel;
+
         //TODO: Add a visible score
         private int _score = 0;
         public int Score
@@ -27,14 +32,26 @@ namespace SCGames.Snake
             get { return _score; }
             set
             {
-                // TODO: Update Score label
+                
                 _score = value;
+                
+                _scoreLabel.Print( 0, 0, _score.ToString() );
+                // Make the score blink for some time
+                // SOme time being ETERNITY due to a bug in SadConsole! Points finger @Thraka ;)
+                _scoreLabel.SetEffect( _scoreLabel.GetCells( _scoreRect ), new Blink() { RemoveOnFinished = true, BlinkCount = 10, BlinkSpeed = 0.2d, } );
             }
         }
 
         public SnakeWindow( ) : base( 60, 40 )
         {
+
+            _scoreRect = new Rectangle( 0, 0, 5, 1 );
+            _scoreLabel = new Basic( 5, 1 );
+            _scoreLabel.Position = new Point( Width / 2, 3 );
+            Children.Add( _scoreLabel );
+
             InitializeView();
+        
         }
 
         public void OnSnakeEat( object sender, EventArgs args )
@@ -73,6 +90,8 @@ namespace SCGames.Snake
             Board.DeathHandler += OnSnakeDeath;
             Board.EatHandler += OnSnakeEat;
 
+            Print( Board.Position.X, 3, "SCORE:" );
+
             // Add Border around the board
             var border = new SadConsole.Surfaces.Basic( boardWidth + 2, boardHeight + 2 );
 
@@ -83,6 +102,9 @@ namespace SCGames.Snake
             // Add border to Board children so it draws later
             Board.Children.Add( border );
             Children.Add( Board );
+
+            Score = 0;
         }
+
     }
 }
