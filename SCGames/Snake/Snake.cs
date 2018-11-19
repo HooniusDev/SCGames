@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using SadConsole;
 using SadConsole.Entities;
+using SadConsole.Surfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,68 +15,91 @@ namespace SCGames.Snake
     public class Snake : Entity
     {
 
-        //private SadConsole.Surfaces.Animated _idle;
-        //private SadConsole.Surfaces.Animated _moving;
 
-        private Point _direction;
+        // The body of the snake
+        public List<Entity> Tail { get; private set; }
+
+        // Boolean to allow only one direction change per 'Tick'
+        private bool _madeTurn = false;
+        // Am I alive and well?
+        public bool Alive = true;
+
+        // Movement Direction of Snake
+        private Point _direction = Point.Zero;
         public Point Direction 
         {
             get { return _direction; }
             set
             {
-                // TODO: Validate direction
-                // No inverting of direction (DOWN -> UP)
-                if( value == new Point( -_direction.X, _direction.Y ) || value == new Point( _direction.X, -_direction.Y ) )
+                // No inverting of direction (DOWN <-> UP) (Left <->Right)
+                if( value == new Point( -_direction.X, _direction.Y ) || value == new Point( _direction.X, -_direction.Y ) || _madeTurn )
                     return;
-                Animation = Animations["moving"];
-                Animation.Start();
                 _direction = value;
+                _madeTurn = true; // Lock to only 1 turn per move
             }
         }
 
 
-        public Snake( ) : base( 1, 1 )
+
+        // Grows the Snake by one 
+        public void Grow( )
         {
-            var _idle = new SadConsole.Surfaces.Animated( "default", 1, 1 );
-
-            _idle.CreateFrame();
-            _idle.Frames[0].SetGlyph( 0, 0, 1 );
-            _idle.Frames[0].SetForeground( 0, 0, Color.Aqua );
-            _idle.Frames[0].SetBackground( 0, 0, Color.Transparent );
-
-            _idle.CreateFrame();
-            _idle.Frames[1].SetGlyph(0,0,1);
-            _idle.Frames[1].SetForeground( 0, 0, Color.DarkBlue );
-            _idle.Frames[1].SetBackground( 0, 0, Color.Transparent );
-
-            _idle.AnimationDuration = 1;
-            _idle.Repeat = true;
-            _idle.Start();
-
-            var _moving = new SadConsole.Surfaces.Animated( "moving", 1, 1 );
-
-            _moving.CreateFrame();
-            _moving.Frames[0].SetGlyph( 0, 0, 1 );
-            _moving.Frames[0].SetForeground( 0, 0, Color.GreenYellow );
-            _moving.Frames[0].SetBackground( 0, 0, Color.Transparent );
-
-            _moving.CreateFrame();
-            _moving.Frames[1].SetGlyph( 0, 0, 1 );
-            _moving.Frames[1].SetForeground( 0, 0, Color.DarkOliveGreen );
-            _moving.Frames[1].SetBackground( 0, 0, Color.Transparent );
-
-            _moving.AnimationDuration = 1;
-            _moving.Repeat = true;
-
-            Animations.Remove( "default" );
-            Animations.Add( "default", _idle );
-            Animations.Add( "moving", _moving );
+            // Create Animated surface for a Tail piece
+            var _tail = new SadConsole.Surfaces.Animated( "default", 1, 1 );
+            _tail.CreateFrame();
+            _tail.CurrentFrame[0].Glyph = 9;
+            _tail.CurrentFrame[0].Foreground = Color.LawnGreen;
+            _tail.CurrentFrame[0].Background = Color.Transparent;
+            Entity tail = new Entity( _tail );
             
+            
+            if( Tail.Count >= 1 )
+            {
+                // Copy position from previous Tail piece
+                tail.Position = Tail[Tail.Count-1].Position;
+            }
+            else
+            {
+                // If its the very first Tail piece copy position from Snake object
+                tail.Position = Position;
+            }
+            // Add to Tail list and register to Entities collection 
+            Tail.Add( tail );
+            SnakeBoard.EntityManager.Entities.Add( tail );
 
-            Animation = _idle;
-            Animation.Start();
+        }
 
 
+
+        public void Move( )
+        {
+            if( !Alive ) // Dead dont move
+                return;
+            if( Tail.Count > 0 )
+            {
+                for( int i = Tail.Count-1; i >= 0; i-- )
+                {
+                    if( i >= 1 )
+                    {
+                        
+                    Tail[i].Position = Tail[i - 1].Position;
+                    }
+                    else // At last segment so copy position of head (this)
+                    {
+                        Tail[0].Position = Position;
+                    }
+                }
+            }
+            // Apply current direction to Head
+            Position += Direction;
+            _madeTurn = false;
+        }
+
+
+        public Snake( Animated anim) : base(anim)
+        {
+            Tail = new List<Entity>();
+            SnakeBoard.EntityManager.Entities.Add( this );
         }
     }
 }

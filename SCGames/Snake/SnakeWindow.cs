@@ -20,51 +20,44 @@ namespace SCGames.Snake
         int boardWidth = 30;
         int boardHeight = 20;
 
-        float timer;
-        float speed = 500f;
-
-        public override void Update( TimeSpan time )
+        //TODO: Add a visible score
+        private int _score = 0;
+        public int Score
         {
-            // TODO these should be in TetrisBoard
-            timer -= time.Milliseconds;
-            if( timer < 0 )
+            get { return _score; }
+            set
             {
-                Board.OnTick();
-                timer = speed;
+                // TODO: Update Score label
+                _score = value;
             }
-
-            // Drop Current
-            if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Down ) )
-            {
-                Board.Snake.Direction = new Point( 0, 1 );
-            }
-
-            if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Up ) )
-            {
-                Board.Snake.Direction = new Point( 0, -1 );
-            }
-
-            if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Left ) )
-            {
-                Board.Snake.Direction = new Point( -1, 0 );
-            }
-
-            if( SadConsole.Global.KeyboardState.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.Right ) )
-            {
-                Board.Snake.Direction = new Point( 1, 0 );
-            }
-
-            //TODO: Add pause state
-
-            base.Update( time );
         }
 
         public SnakeWindow( ) : base( 60, 40 )
         {
             InitializeView();
-            //Board.OnScoreChangeEvent += OnScoreChanged;
-            //Print( 40, 5, "Lines: 0" );
-            //timer = dropDelay;
+        }
+
+        public void OnSnakeEat( )
+        {
+            Score += 25;
+        }
+
+        public void OnSnakeDeath( )
+        {
+            // Show a Death message
+            // This doesnt properly show the button. Caused by thinline button!
+            Message( "You Died", "Okay", () =>
+            {
+                //Call Restart when button pressed
+                Restart();
+            } );
+        }
+
+        // Restarts game;
+        public void Restart( )
+        {
+            Score = 0;
+            Board.OnStart();
         }
 
         private void InitializeView( )
@@ -77,12 +70,13 @@ namespace SCGames.Snake
             Board = new SnakeBoard( boardWidth, boardHeight );
             Board.Position = new Point( Width / 2 - boardWidth / 2, 5 );
 
+            Board.OnDeathEvent += OnSnakeDeath;
+
             // Add Border around the board
             var border = new SadConsole.Surfaces.Basic( boardWidth + 2, boardHeight + 2 );
 
             border.DrawBox( new Rectangle( 0, 0, border.Width, border.Height ), new Cell( DefaultForeground, DefaultBackground ), connectedLineStyle: SurfaceBase.ConnectedLineThin );
 
-            border.Draw( TimeSpan.Zero );
             border.Position = new Point( -1, -1 );
 
             // Add border to Board children so it draws later
