@@ -1,9 +1,10 @@
 {
-  "FilePath": "cp437_10x10_extended.png",
-  "GlyphHeight": 10,
+  "FilePath": "unscii-16.png",
+  "Columns": 64,
+  "GlyphHeight": 16,
   "GlyphPadding": 0,
-  "GlyphWidth": 10,
-  "Name": "cp-extended",
+  "GlyphWidth": 8,
+  "Name": "unscii-extended",
   "SolidGlyphIndex": 219,
   "IsSadExtended": true,
   "GlyphDefinitions": {
