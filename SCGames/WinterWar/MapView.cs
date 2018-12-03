@@ -28,9 +28,9 @@ namespace SCGames.WinterWar
         int ZoomLevel = 2;
 
         bool _targetting = false;
+        bool _height = false;
 
-        List<Cell> TargettingLine;
-        Recolor2 rcEffect;
+        TargettingLine _targetLine;
 
         public void Zoom( int level )
         {
@@ -45,22 +45,22 @@ namespace SCGames.WinterWar
             {
                 case 1:
                     BattleMap.Font = BattleMap.Font.Master.GetFont( Font.FontSizes.One );
-                    //BattleMap.Position = new Point( 4, 4 );
+                    BattleMap.Position = new Point( 4, 4 );
                     BattleMap.ViewPort = new Microsoft.Xna.Framework.Rectangle( 0, 0, ( Width - 2 ) * 4, ( Height - 2 ) * 4 );
                     break;
                 case 2:
                     BattleMap.Font = BattleMap.Font.Master.GetFont( Font.FontSizes.Two );
-                    //BattleMap.Position = new Point( 2, 2 );
+                    BattleMap.Position = new Point( 2, 2 );
                     BattleMap.ViewPort = new Microsoft.Xna.Framework.Rectangle( 0, 0, ( Width - 2 ) * ZoomLevel, ( Height - 2 ) * ZoomLevel );
                     break;
                 case 3:
                     BattleMap.Font = BattleMap.Font.Master.GetFont( Font.FontSizes.Four );
-                    //BattleMap.Position = new Point( 1, 1 );
+                    BattleMap.Position = new Point( 1, 1 );
                     BattleMap.ViewPort = new Microsoft.Xna.Framework.Rectangle( 0, 0, ( Width - 2 ), ( Height - 2 ) );
                     break;
                 default:
                     BattleMap.Font = BattleMap.Font.Master.GetFont( Font.FontSizes.Two );
-                    //BattleMap.Position = new Point( 2, 2 );
+                    BattleMap.Position = new Point( 2, 2 );
                     BattleMap.ViewPort = new Microsoft.Xna.Framework.Rectangle( 0, 0, ( Width - 2 ) * ZoomLevel, ( Height - 2 ) * ZoomLevel );
                     break;
             }
@@ -82,12 +82,6 @@ namespace SCGames.WinterWar
 
             FontMaster fontMaster = SadConsole.Global.LoadFont( "Kein5x5.font" );
 
-            TargettingLine = new List<Cell>();
-            rcEffect = new Recolor2()
-            {
-                Background = Color.Blue,
-            };
-
             BattleMap = MapLoader.Load(  "WinterWar/Maps/0/" );
             Children.Add( BattleMap );
             Children.Add( BattleMap.TileInfo );
@@ -95,43 +89,26 @@ namespace SCGames.WinterWar
 
             BattleMap.ViewPort = new Microsoft.Xna.Framework.Rectangle( 0, 0, ( Width - 2 ) * ZoomLevel, ( Height - 2 ) * ZoomLevel );
             BattleMap.MouseOverNewCell += HandleMouseCellChanged;
+            _targetLine = new TargettingLine( BattleMap );
+
+
+            BattleMap.UpdateFov();
+
         }
 
         public void HandleMouseCellChanged( object obj, EventArgs e )
         {
             if( !_targetting )
             {
-                BattleMap.SetEffect( BattleMap[1, 1], null );
                 return;
             }
-            if( TargettingLine != null && TargettingLine.Count > 0 )
+            else
             {
-
-                foreach( Cell c in TargettingLine )
-                {
-                    BattleMap.SetEffect( BattleMap[1,1], null );
-
-                    //BattleMap.SetEffect( BattleMap[c.X, c.Y], null );
-                    //System.Console.WriteLine( BattleMap.Effects.GetEffect( c ).ToString());
-                }
-               BattleMap.Effects.RemoveAll();
-                
+                var start = BattleMap.EntityManager.Entities[0].Position;
+                var end = BattleMap.OldMousePos;
+                _targetLine.Show( BattleMap.GetCurrentUnit().Position, end );
             }
-            Coord from = BattleMap.EntityManager.Entities[0].Position.ToCoord();
-            Coord to = BattleMap.OldMousePos.ToCoord();
-            var coords = Lines.Get( from, to, Lines.Algorithm.DDA );
-            TargettingLine = new List<Cell>();
 
-            Cell cell = BattleMap[1, 1];
-            TargettingLine.Add( cell );
-            BattleMap.SetEffect( cell, rcEffect.Clone() );
-
-            //foreach( Coord c in coords )
-            //{
-            //    Cell cell = BattleMap[c.X, c.Y];
-            //    TargettingLine.Add( cell );
-            //    BattleMap.SetEffect( cell, rcEffect.Clone() );
-            //}
         }
 
         public override bool ProcessKeyboard( Keyboard info )
@@ -172,14 +149,37 @@ namespace SCGames.WinterWar
                 BattleMap.TestTrooper.Position += new Point( 1, 0 );
             }
 
+            if( info.IsKeyPressed( Microsoft.Xna.Framework.Input.Keys.N ) )
+            {
+                BattleMap.GetNextPlayerUnit();
+            }
+
             if( info.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.T ) )
             {
-                _targetting = !_targetting;
+                if( _targetting ) // -> off
+                {
+                    _targetLine.Hide();
+                    _targetting = false;
+                }
+                else
+                {
+                    _targetting = true;
+                }
+            }
+
+            if( info.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.H ) )
+            {
+                _height = !_height;
+
+                foreach( WWTile t in BattleMap )
+                {
+                    t.RenderHeight( _height );
+                }
             }
 
             if( info.IsKeyReleased( Microsoft.Xna.Framework.Input.Keys.C ) )
             {
-                //BattleMap.Effects.Remove( Recolor );
+                _targetLine.Hide();
             }
 
             return base.ProcessKeyboard( info );

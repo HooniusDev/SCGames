@@ -21,6 +21,16 @@ namespace SCGames.WinterWar.Maps
         static readonly Color Bridge = new Color( 138, 111, 48 );
         static readonly Color BridgeRail = new Color( 143, 151, 74 );
 
+        static readonly Cell SnowFOV = new Cell( new Color( 240, 240, 245 ), new Color( 220, 220, 235 ) );
+        static readonly Color SnowShadow = new Color( 100, 100, 125 );
+        static readonly Cell SnowUnSeen = new Cell( new Color( 100, 100, 125 ), new Color( 110, 110, 130 ));
+        static readonly Cell TrenchFOV = new Cell( new Color( 143, 86, 59 ), new Color( 120, 66, 39 ) );
+        static readonly Color TrenchShadow =  new Color( 40, 30, 20 );
+
+        static readonly Cell TrenchUnSeen = new Cell( new Color( 70, 43, 30 ), new Color(75, 48, 36 ));
+        static readonly Cell TrenchWallFOV = new Cell( new Color( 163, 106, 79 ), new Color( 143, 86, 59 ));
+        static readonly Cell TrenchWallUnSeen = new Cell( new Color( 81, 52, 40 ), new Color( 90, 60, 50 ) );
+
         public static BattleMap Load( string path )
         {
 
@@ -58,40 +68,41 @@ namespace SCGames.WinterWar.Maps
             {
                 if( materialsArray[i] == TrenchTile )
                 {
-                    map[i] = MapTile.Trench;
-                    map[i].ShadowColor = ( map[i].Background * .8f ).FillAlpha();
+                    map[i] = new WWTile( TrenchFOV, TrenchUnSeen, TrenchShadow, shadowArray[i].GetBrightness(), heightmapArray[i].GetBrightness(), ',' );
+
                     map[i].Description = "Trench";
                 }
                 else if( materialsArray[i] == TrenchWallTile )
                 {
-                    map[i] = MapTile.TrenchWall;
-                    map[i].ShadowColor = ( map[i].Background * .5f ).FillAlpha();
+                    //map[i] = MapTile.TrenchWall;
+                    map[i] = new WWTile( TrenchWallFOV, TrenchWallUnSeen, TrenchShadow, shadowArray[i].GetBrightness(), heightmapArray[i].GetBrightness(), '#' );
                     map[i].Description = "Trench wall.";
 
                 }
                 else if( materialsArray[i] == Bridge )
                 {
-                    map[i] = MapTile.Bridge;
-                    map[i].ShadowColor = ( map[i].Background * .5f ).FillAlpha();
+                    //map[i] = MapTile.Bridge;
+                    map[i] = new WWTile( SnowFOV, SnowUnSeen, TrenchShadow, shadowArray[i].GetBrightness(), heightmapArray[i].GetBrightness(), ',' );
                     map[i].Description = "Bridge deck";
 
                 }
                 else if( materialsArray[i] == BridgeRail )
                 {
-                    map[i] = MapTile.BridgeRail;
-                    map[i].ShadowColor = ( map[i].Background * .5f ).FillAlpha();
+                    //map[i] = MapTile.BridgeRail;
+                    map[i] = new WWTile( SnowFOV, SnowUnSeen, TrenchShadow, shadowArray[i].GetBrightness(), heightmapArray[i].GetBrightness(), '#' );
                     map[i].Description = "Bridge railing";
 
                 }
                 else
                 {
-                    map[i] = MapTile.Snow;
-                    map[i].ShadowColor = ( Color.DarkSlateBlue * .5f ).FillAlpha();
-                    map[i].Description = "Snow, snow and more snow.";
+                    map[i] = new WWTile( SnowFOV, SnowUnSeen, SnowShadow, shadowArray[i].GetBrightness(), heightmapArray[i].GetBrightness(), '.' );
+                    map[i].Description = "Snow";
                 }
-                map[i].SetFlag( TileFlags.Seen | TileFlags.Lighted | TileFlags.InLOS );
-                map[i].Height = heightmapArray[i].GetBrightness();
-                map[i].Background = Color.Lerp( map[i].Background, map[i].ShadowColor, 1f - shadowArray[i].GetBrightness() );
+                //WWTile tile = new WWTile( SnowFOV, SnowUnSeen, shadowArray[i].GetBrightness(), heightmapArray[i].GetBrightness(), '.' );
+                //map[i].SetFlag( TileFlags.Seen | TileFlags.Lighted );
+                //map[i].Height = heightmapArray[i].GetBrightness();
+                //map[i].Background = Color.Lerp( map[i].Background, map[i].ShadowColor, 1f - shadowArray[i].GetBrightness() );
+                //map[i].Z = heightmapArray[i].GetBrightness();
 
             }
             return map;

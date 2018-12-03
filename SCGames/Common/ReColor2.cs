@@ -105,7 +105,7 @@ namespace SadConsole.Effects
 
             base.Clear( cell );
 
-            if( !Permanent )
+            if( Permanent )
             {
                 if( DoBackground )
                     cell.Background = Background;
@@ -117,7 +117,7 @@ namespace SadConsole.Effects
 
         public override ICellEffect Clone( )
         {
-            return new Recolor()
+            return new Recolor2()
             {
                 Foreground = this.Foreground,
                 Background = this.Background,

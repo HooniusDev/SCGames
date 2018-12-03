@@ -95,13 +95,14 @@
     <Compile Include="TilesetViewer\TilesetViewer.cs" />
     <Compile Include="WinterWar\Actions\ActionBase.cs" />
     <Compile Include="WinterWar\Actions\ActionResult.cs" />
-    <Compile Include="WinterWar\Cells\MapTile.cs" />
-    <Compile Include="WinterWar\Cells\Tile.cs" />
+    <Compile Include="WinterWar\Cells\WWTile.cs" />
     <Compile Include="WinterWar\Cells\FlagsAndStates.cs" />
     <Compile Include="WinterWar\Entities\EntityFactory.cs" />
+    <Compile Include="WinterWar\Entities\Unit.cs" />
     <Compile Include="WinterWar\Maps\BattleMap.cs" />
     <Compile Include="WinterWar\Maps\GoRogueConversion.cs" />
     <Compile Include="WinterWar\Maps\MapLoader.cs" />
+    <Compile Include="WinterWar\Maps\TargettingLine.cs" />
     <Compile Include="WinterWar\MapView.cs" />
   </ItemGroup>
   <ItemGroup>
