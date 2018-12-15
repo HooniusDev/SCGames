@@ -78,7 +78,6 @@ namespace SCGames.WinterWar.Maps
             CreateTrooper( 80, 40, false );
 
 
-
             GetNextPlayerUnit();
 
         }
@@ -156,7 +155,7 @@ namespace SCGames.WinterWar.Maps
 
             foreach( Entity e in EntityManager.Entities )
             {
-                if( ( e is Unit) && !( e as Unit ).PlayerControlled )
+                if( !( e is Unit) || !( e as Unit ).PlayerControlled )
                     continue;
                 RadiusAreaProvider r = new RadiusAreaProvider( e.Position.ToCoord(), 10, Radius.CIRCLE );
                 foreach( Coord c in r.CalculatePositions() )

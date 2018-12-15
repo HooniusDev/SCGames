@@ -76,6 +76,7 @@
     <Compile Include="Common\Themes\ColorScheme.cs" />
     <Compile Include="Common\Themes\LibraryExtended.cs" />
     <Compile Include="program.cs" />
+    <Compile Include="SadConsole\Shapes.cs" />
     <Compile Include="Service1.cs">
       <SubType>Component</SubType>
     </Compile>
